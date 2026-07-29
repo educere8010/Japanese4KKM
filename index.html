@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>요리 유학 일본어</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#1a1f35; --panel2:#232a45; --line:#2e3860;
+    --txt:#eef1ff; --sub:#a6b0d8; --accent:#ff7a59; --accent2:#5b8cff;
+    --green:#3ecf8e; --gold:#ffcf5c; --red:#ff6b6b; --radius:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; padding:0}
+  body{
+    font-family:"Segoe UI","Malgun Gothic","Yu Gothic",system-ui,sans-serif;
+    background:var(--bg); color:var(--txt);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+  }
+  .app{width:100%; max-width:520px; flex:1; display:flex; flex-direction:column; min-height:100vh}
+  header{
+    padding:18px 20px 14px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; background:linear-gradient(180deg,var(--bg),rgba(15,18,32,.85)); backdrop-filter:blur(6px); z-index:5;
+  }
+  header h1{font-size:18px; margin:0; letter-spacing:-.3px}
+  header h1 span{color:var(--accent)}
+  .streak{font-size:13px; color:var(--sub); background:var(--panel); padding:6px 12px; border-radius:20px; border:1px solid var(--line)}
+  main{flex:1; padding:0 16px 90px; overflow-y:auto}
+  .hide{display:none !important}
+
+  /* cards / dashboard */
+  .hero{background:linear-gradient(135deg,#2a2140,#1a1f35); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:16px}
+  .hero p{margin:0 0 4px; color:var(--sub); font-size:13px}
+  .hero h2{margin:0 0 14px; font-size:20px; line-height:1.35}
+  .progressbar{height:10px; background:#0c0f1c; border-radius:20px; overflow:hidden; margin-top:8px}
+  .progressbar i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--gold)); border-radius:20px; transition:width .5s}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .tile{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px; cursor:pointer; transition:.15s; text-align:left}
+  .tile:active{transform:scale(.97)}
+  .tile .emo{font-size:26px}
+  .tile h3{margin:8px 0 2px; font-size:15px}
+  .tile small{color:var(--sub); font-size:12px}
+  .tile.wide{grid-column:1/-1; display:flex; align-items:center; gap:14px}
+  .tile.wide .emo{font-size:30px}
+
+  /* section header */
+  .shead{display:flex; align-items:center; gap:12px; margin:6px 0 16px}
+  .back{background:var(--panel); border:1px solid var(--line); color:var(--txt); width:38px; height:38px; border-radius:12px; font-size:18px; cursor:pointer}
+  .shead h2{margin:0; font-size:18px}
+  .shead small{color:var(--sub); display:block; font-size:12px; font-weight:normal}
+
+  /* theme picker */
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
+  .chip{padding:8px 14px; border-radius:20px; background:var(--panel); border:1px solid var(--line); color:var(--sub); font-size:13px; cursor:pointer}
+  .chip.on{background:var(--accent); color:#181018; border-color:var(--accent); font-weight:600}
+
+  /* flashcard */
+  .fc{perspective:1200px; margin-bottom:16px}
+  .fc-inner{position:relative; width:100%; min-height:240px; transition:transform .5s; transform-style:preserve-3d; cursor:pointer}
+  .fc.flipped .fc-inner{transform:rotateY(180deg)}
+  .fc-face{position:absolute; inset:0; backface-visibility:hidden; background:var(--panel); border:1px solid var(--line); border-radius:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center}
+  .fc-back{transform:rotateY(180deg)}
+  .jp{font-size:40px; font-weight:700; margin:6px 0; line-height:1.3}
+  .furi{font-size:15px; color:var(--accent2); margin-bottom:2px}
+  .romaji{font-size:13px; color:var(--sub)}
+  .ko{font-size:22px; margin:6px 0}
+  .ex{font-size:14px; color:var(--sub); margin-top:14px; line-height:1.6; border-top:1px solid var(--line); padding-top:12px; width:100%}
+  .ex b{color:var(--txt); font-weight:600}
+  .tap-hint{position:absolute; bottom:10px; left:0; right:0; text-align:center; font-size:11px; color:var(--sub); opacity:.7}
+  .counter{text-align:center; color:var(--sub); font-size:13px; margin-bottom:10px}
+
+  .row-btns{display:flex; gap:10px}
+  button.big{flex:1; padding:16px; border-radius:14px; border:none; font-size:15px; font-weight:600; cursor:pointer; color:#fff}
+  .b-again{background:#3a2740; color:#ffb3b3; border:1px solid #5a2f45}
+  .b-good{background:linear-gradient(135deg,var(--green),#2fae76); color:#06231a}
+  .b-next{background:var(--accent2)}
+  .b-speak{background:var(--panel2); color:var(--txt); border:1px solid var(--line); flex:0 0 56px; font-size:20px}
+
+  /* dialogue */
+  .bubble{max-width:82%; padding:12px 15px; border-radius:16px; margin-bottom:6px; line-height:1.5; font-size:15px}
+  .b-a{background:var(--panel); border:1px solid var(--line); border-bottom-left-radius:4px; align-self:flex-start}
+  .b-b{background:linear-gradient(135deg,var(--accent2),#4a72d6); border-bottom-right-radius:4px; align-self:flex-end}
+  .chat{display:flex; flex-direction:column; gap:2px; margin-bottom:16px}
+  .who{font-size:11px; color:var(--sub); margin:8px 0 2px}
+  .b-b .who{text-align:right}
+  .line-jp{font-weight:600}
+  .line-furi{font-size:12px; color:#cfe0ff; opacity:.85; margin:2px 0}
+  .b-a .line-furi{color:var(--accent2)}
+  .line-ko{font-size:13px; opacity:.9; margin-top:4px}
+  .spk{cursor:pointer; margin-left:6px; opacity:.7; font-size:13px}
+
+  /* quiz */
+  .q-opt{display:block; width:100%; text-align:left; padding:15px; margin-bottom:10px; border-radius:12px; background:var(--panel); border:1px solid var(--line); color:var(--txt); font-size:16px; cursor:pointer; transition:.15s}
+  .q-opt:active{transform:scale(.98)}
+  .q-opt.correct{background:#123a2b; border-color:var(--green); color:#8ff0c8}
+  .q-opt.wrong{background:#3a1620; border-color:var(--red); color:#ffb3b3}
+  .q-prompt{font-size:34px; font-weight:700; text-align:center; margin:20px 0 6px}
+  .q-sub{text-align:center; color:var(--sub); margin-bottom:24px; font-size:14px}
+  .result{text-align:center; padding:30px 10px}
+  .result .big-num{font-size:52px; font-weight:800; color:var(--gold)}
+
+  /* kana grid */
+  .kana-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px}
+  .kana-cell{aspect-ratio:1; background:var(--panel); border:1px solid var(--line); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer}
+  .kana-cell b{font-size:22px}
+  .kana-cell small{font-size:10px; color:var(--sub)}
+  .kana-cell:active{background:var(--accent); color:#181018}
+
+  /* bottom nav */
+  nav{position:fixed; bottom:0; left:0; right:0; max-width:520px; margin:0 auto; background:var(--panel); border-top:1px solid var(--line); display:flex; padding:8px 6px 12px}
+  nav button{flex:1; background:none; border:none; color:var(--sub); font-size:11px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0}
+  nav button .ni{font-size:20px}
+  nav button.on{color:var(--accent)}
+
+  .note{background:var(--panel); border:1px dashed var(--line); border-radius:12px; padding:14px; font-size:13px; color:var(--sub); line-height:1.6; margin-bottom:16px}
+  .badge{display:inline-block; font-size:11px; padding:2px 8px; border-radius:10px; background:var(--panel2); color:var(--sub); border:1px solid var(--line); margin-left:6px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🍳 <span>요리 유학</span> 일본어</h1>
+    <div class="streak" id="streak">🔥 0일</div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<nav id="nav">
+  <button data-view="home" class="on"><span class="ni">🏠</span>홈</button>
+  <button data-view="words"><span class="ni">📚</span>단어</button>
+  <button data-view="grammar"><span class="ni">🧩</span>문형</button>
+  <button data-view="talk"><span class="ni">💬</span>회화</button>
+  <button data-view="kana"><span class="ni">あ</span>かな</button>
+</nav>
+
+<script>
+/* ============================== 데이터 ============================== */
+const THEMES = {
+  friends: {label:"🙌 친구 사귀기", desc:"유학 첫날, 친구 만들기"},
+  daily:   {label:"🏙️ 실생활",     desc:"편의점·전철·자취·병원"},
+  kitchen: {label:"🔪 요리현장",    desc:"주방·주문·식재료·조리"},
+};
+
+const WORDS = {
+  friends:[
+    {jp:"初めまして",furi:"はじめまして",ro:"hajimemashite",ko:"처음 뵙겠습니다",ex:"初めまして、キムです。", exko:"처음 뵙겠습니다, 김입니다."},
+    {jp:"よろしく",furi:"よろしく",ro:"yoroshiku",ko:"잘 부탁해요",ex:"よろしくお願いします。", exko:"잘 부탁드립니다."},
+    {jp:"出身",furi:"しゅっしん",ro:"shusshin",ko:"출신",ex:"韓国の出身です。", exko:"한국 출신입니다."},
+    {jp:"趣味",furi:"しゅみ",ro:"shumi",ko:"취미",ex:"趣味は料理です。", exko:"취미는 요리예요."},
+    {jp:"連絡先",furi:"れんらくさき",ro:"renrakusaki",ko:"연락처",ex:"連絡先を交換しよう。", exko:"연락처 교환하자."},
+    {jp:"仲良く",furi:"なかよく",ro:"nakayoku",ko:"사이좋게",ex:"仲良くしてね。", exko:"사이좋게 지내자."},
+    {jp:"一緒に",furi:"いっしょに",ro:"issho ni",ko:"함께",ex:"一緒に行きませんか。", exko:"같이 가지 않을래요?"},
+    {jp:"また今度",furi:"またこんど",ro:"mata kondo",ko:"다음에 또",ex:"また今度ね！", exko:"다음에 또 봐!"},
+  ],
+  daily:[
+    {jp:"会計",furi:"かいけい",ro:"kaikei",ko:"계산(결제)",ex:"会計はどこですか。", exko:"계산은 어디서 하나요?"},
+    {jp:"袋",furi:"ふくろ",ro:"fukuro",ko:"봉투",ex:"袋はいりません。", exko:"봉투는 필요 없어요."},
+    {jp:"乗り換え",furi:"のりかえ",ro:"norikae",ko:"환승",ex:"次の駅で乗り換えます。", exko:"다음 역에서 갈아탑니다."},
+    {jp:"家賃",furi:"やちん",ro:"yachin",ko:"월세",ex:"家賃は五万円です。", exko:"월세는 5만 엔입니다."},
+    {jp:"予約",furi:"よやく",ro:"yoyaku",ko:"예약",ex:"予約をしたいです。", exko:"예약을 하고 싶어요."},
+    {jp:"具合",furi:"ぐあい",ro:"guai",ko:"몸 상태",ex:"具合が悪いです。", exko:"몸이 안 좋아요."},
+    {jp:"領収書",furi:"りょうしゅうしょ",ro:"ryōshūsho",ko:"영수증",ex:"領収書をください。", exko:"영수증 주세요."},
+    {jp:"ごみ",furi:"ごみ",ro:"gomi",ko:"쓰레기",ex:"ごみの日はいつですか。", exko:"쓰레기 버리는 날은 언제예요?"},
+  ],
+  kitchen:[
+    {jp:"厨房",furi:"ちゅうぼう",ro:"chūbō",ko:"주방",ex:"厨房に入ります。", exko:"주방에 들어갑니다."},
+    {jp:"仕込み",furi:"しこみ",ro:"shikomi",ko:"재료 준비(밑작업)",ex:"仕込みを手伝います。", exko:"밑작업을 돕겠습니다."},
+    {jp:"食材",furi:"しょくざい",ro:"shokuzai",ko:"식재료",ex:"食材が足りません。", exko:"식재료가 부족해요."},
+    {jp:"注文",furi:"ちゅうもん",ro:"chūmon",ko:"주문",ex:"注文をお願いします。", exko:"주문 부탁드립니다."},
+    {jp:"包丁",furi:"ほうちょう",ro:"hōchō",ko:"식칼",ex:"包丁を研ぎます。", exko:"칼을 갑니다."},
+    {jp:"火加減",furi:"ひかげん",ro:"hikagen",ko:"불 조절",ex:"火加減に気をつけて。", exko:"불 조절에 주의해."},
+    {jp:"盛り付け",furi:"もりつけ",ro:"moritsuke",ko:"플레이팅",ex:"盛り付けが綺麗ですね。", exko:"플레이팅이 예쁘네요."},
+    {jp:"賄い",furi:"まかない",ro:"makanai",ko:"직원 식사",ex:"賄いを作ります。", exko:"직원 식사를 만듭니다."},
+    {jp:"下ごしらえ",furi:"したごしらえ",ro:"shitagoshirae",ko:"밑준비",ex:"野菜の下ごしらえをします。", exko:"채소 밑준비를 합니다."},
+    {jp:"お会計",furi:"おかいけい",ro:"okaikei",ko:"계산",ex:"お会計はこちらです。", exko:"계산은 이쪽입니다."},
+  ],
+};
+
+const GRAMMAR = [
+  {pat:"～は～です", ko:"~은/는 ~입니다", note:"가장 기본 서술문. 명사를 정중하게 소개.",
+   ex:"私はコックです。", exf:"わたしはこっくです", exko:"저는 요리사입니다."},
+  {pat:"～を～ます", ko:"~을/를 ~합니다", note:"を는 목적어 표시 조사. 동작의 대상.",
+   ex:"野菜を切ります。", exf:"やさいをきります", exko:"채소를 자릅니다."},
+  {pat:"～たいです", ko:"~하고 싶습니다", note:"동사 ます형에서 ます를 떼고 たいです.",
+   ex:"日本で働きたいです。", exf:"にほんではたらきたいです", exko:"일본에서 일하고 싶어요."},
+  {pat:"～てください", ko:"~해 주세요", note:"동사 て형 + ください. 정중한 요청·지시.",
+   ex:"塩を取ってください。", exf:"しおをとってください", exko:"소금 좀 집어 주세요."},
+  {pat:"～てもいいですか", ko:"~해도 될까요?", note:"허락 구하기. 주방·매장에서 매우 자주 씀.",
+   ex:"休んでもいいですか。", exf:"やすんでもいいですか", exko:"쉬어도 될까요?"},
+  {pat:"～なければなりません", ko:"~해야 합니다", note:"의무. 회화에선 ～なきゃ 로 줄이기도.",
+   ex:"早く来なければなりません。", exf:"はやくこなければなりません", exko:"일찍 와야 합니다."},
+  {pat:"～ことができます", ko:"~할 수 있습니다", note:"가능 표현. 명사+ができます 형태도 가능.",
+   ex:"魚をさばくことができます。", exf:"さかなをさばくことができます", exko:"생선을 손질할 수 있어요."},
+  {pat:"～と思います", ko:"~라고 생각합니다", note:"보통형 + と思います. 의견·추측(N4~N3 필수).",
+   ex:"美味しいと思います。", exf:"おいしいとおもいます", exko:"맛있을 거라고 생각해요."},
+];
+
+const DIALOGUES = {
+  friends:{
+    title:"학교에서 첫 인사", scene:"요리학교 첫날, 옆자리 학생에게",
+    lines:[
+      {who:"A", n:"옆자리 학생", jp:"こんにちは。留学生ですか？", f:"こんにちは。りゅうがくせいですか？", ko:"안녕하세요. 유학생이세요?"},
+      {who:"B", n:"나", jp:"はい、韓国から来ました。キムです。", f:"はい、かんこくからきました。きむです。", ko:"네, 한국에서 왔어요. 김이라고 해요."},
+      {who:"A", n:"옆자리 학생", jp:"料理の勉強、頑張りましょうね。", f:"りょうりのべんきょう、がんばりましょうね。", ko:"요리 공부, 같이 열심히 해요."},
+      {who:"B", n:"나", jp:"はい！よかったら連絡先を交換しませんか。", f:"はい！よかったられんらくさきをこうかんしませんか。", ko:"네! 괜찮으면 연락처 교환할래요?"},
+    ]
+  },
+  daily:{
+    title:"편의점에서", scene:"계산대에서 점원과",
+    lines:[
+      {who:"A", n:"점원", jp:"お会計、530円になります。", f:"おかいけい、ごひゃくさんじゅうえんになります。", ko:"계산은 530엔입니다."},
+      {who:"B", n:"나", jp:"カードで払えますか。", f:"かーどではらえますか。", ko:"카드로 결제 되나요?"},
+      {who:"A", n:"점원", jp:"はい、大丈夫です。袋はご利用ですか。", f:"はい、だいじょうぶです。ふくろはごりようですか。", ko:"네, 괜찮습니다. 봉투 필요하세요?"},
+      {who:"B", n:"나", jp:"いえ、大丈夫です。ありがとうございます。", f:"いえ、だいじょうぶです。ありがとうございます。", ko:"아뇨, 괜찮아요. 감사합니다."},
+    ]
+  },
+  kitchen:{
+    title:"주방 아르바이트 첫날", scene:"셰프(선배)에게 지시받기",
+    lines:[
+      {who:"A", n:"셰프", jp:"まず、野菜の下ごしらえをお願い。", f:"まず、やさいのしたごしらえをおねがい。", ko:"우선 채소 밑준비 부탁해."},
+      {who:"B", n:"나", jp:"はい！切り方を教えてください。", f:"はい！きりかたをおしえてください。", ko:"네! 써는 법을 알려 주세요."},
+      {who:"A", n:"셰프", jp:"これくらいの千切りで。火加減は強火だよ。", f:"これくらいのせんぎりで。ひかげんはつよびだよ。", ko:"이 정도 채썰기로. 불은 센 불이야."},
+      {who:"B", n:"나", jp:"分かりました。確認します。", f:"わかりました。かくにんします。", ko:"알겠습니다. 확인하겠습니다."},
+    ]
+  }
+};
+
+const KANA = {
+  hira:[["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"],["さ","sa"],["し","shi"],["す","su"],["せ","se"],["そ","so"],["た","ta"],["ち","chi"],["つ","tsu"],["て","te"],["と","to"],["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"],["は","ha"],["ひ","hi"],["ふ","fu"],["へ","he"],["ほ","ho"],["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"],["や","ya"],["ゆ","yu"],["よ","yo"],["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"],["わ","wa"],["を","wo"],["ん","n"]],
+  kata:[["ア","a"],["イ","i"],["ウ","u"],["エ","e"],["オ","o"],["カ","ka"],["キ","ki"],["ク","ku"],["ケ","ke"],["コ","ko"],["サ","sa"],["シ","shi"],["ス","su"],["セ","se"],["ソ","so"],["タ","ta"],["チ","chi"],["ツ","tsu"],["テ","te"],["ト","to"],["ナ","na"],["ニ","ni"],["ヌ","nu"],["ネ","ne"],["ノ","no"],["ハ","ha"],["ヒ","hi"],["フ","fu"],["ヘ","he"],["ホ","ho"],["マ","ma"],["ミ","mi"],["ム","mu"],["メ","me"],["モ","mo"],["ヤ","ya"],["ユ","yu"],["ヨ","yo"],["ラ","ra"],["リ","ri"],["ル","ru"],["レ","re"],["ロ","ro"],["ワ","wa"],["ヲ","wo"],["ン","n"]],
+};
+
+/* ============================== 상태/저장 ============================== */
+const store = {
+  get(){ try{return JSON.parse(localStorage.getItem("jp_app")||"{}")}catch(e){return{}} },
+  set(o){ localStorage.setItem("jp_app", JSON.stringify(o)) },
+};
+function markStudied(n){
+  const s=store.get(); const today=new Date().toISOString().slice(0,10);
+  s.studied=(s.studied||0)+n;
+  if(s.lastDay!==today){
+    if(s.lastDay===yesterday()) s.streak=(s.streak||0)+1; else s.streak=1;
+    s.lastDay=today;
+  }
+  store.set(s); renderStreak();
+}
+function yesterday(){ const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
+function renderStreak(){ const s=store.get(); document.getElementById("streak").textContent="🔥 "+(s.streak||0)+"일"; }
+
+/* ============================== 음성 (TTS) ============================== */
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  const u=new SpeechSynthesisUtterance(text); u.lang="ja-JP"; u.rate=.9;
+  const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith("ja"));
+  if(v) u.voice=v;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+/* ============================== 뷰 렌더 ============================== */
+const main=document.getElementById("main");
+let state={theme:"friends", wi:0, flipped:false};
+
+function esc(s){return s.replace(/</g,"&lt;")}
+
+function viewHome(){
+  const s=store.get();
+  const studied=s.studied||0;
+  const goal=1700; // 필수 단어 목표
+  const pct=Math.min(100,Math.round(studied/goal*100));
+  main.innerHTML=`
+  <div class="hero">
+    <p>오늘의 학습 · N5 → <b style="color:var(--gold)">N2</b> 로드맵</p>
+    <h2>요리 유학을 위한<br>실전 일본어 트레이너</h2>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--sub)">
+      <span>학습한 카드 ${studied}개</span><span>목표 ${goal}개 · ${pct}%</span>
+    </div>
+    <div class="progressbar"><i style="width:${pct}%"></i></div>
+  </div>
+  <div class="grid">
+    <div class="tile wide" data-go="words">
+      <span class="emo">📚</span>
+      <div><h3>상황별 단어장</h3><small>친구·실생활·요리현장 44단어 <span class="badge">플래시카드</span></small></div>
+    </div>
+    <div class="tile" data-go="grammar"><span class="emo">🧩</span><h3>문형 연습</h3><small>기초 문장구조 8패턴</small></div>
+    <div class="tile" data-go="talk"><span class="emo">💬</span><h3>상황 회화</h3><small>롤플레이 3세트</small></div>
+    <div class="tile" data-go="quiz"><span class="emo">✏️</span><h3>단어 퀴즈</h3><small>4지선다 10문제</small></div>
+    <div class="tile" data-go="kana"><span class="emo">あ</span><h3>かな 복습</h3><small>히라가나·카타카나</small></div>
+  </div>
+  <div class="note">
+    💡 <b>이 앱은 v1 프로토타입이에요.</b> 갖고 계신 <b>필수 단어 1700개 PDF</b>·<b>단어 150 문서</b>를 그대로 데이터로 넣으면
+    단어량이 크게 늘어나고, N3·N2 문법과 청해 문제도 단계별로 추가할 수 있어요.
+  </div>`;
+  main.querySelectorAll("[data-go]").forEach(t=>t.onclick=()=>go(t.dataset.go));
+}
+
+/* ---- 단어 플래시카드 ---- */
+function viewWords(){
+  const list=WORDS[state.theme];
+  const w=list[state.wi];
+  main.innerHTML=`
+  <div class="shead"><button class="back" onclick="go('home')">←</button>
+    <div><h2>상황별 단어장</h2><small>${THEMES[state.theme].desc}</small></div></div>
+  <div class="chip-row" id="themeChips"></div>
+  <div class="counter">${state.wi+1} / ${list.length}</div>
+  <div class="fc ${state.flipped?'flipped':''}" id="card">
+    <div class="fc-inner">
+      <div class="fc-face">
+        <div class="furi">${w.furi}</div>
+        <div class="jp">${esc(w.jp)}</div>
+        <div class="romaji">${w.ro}</div>
+        <div class="tap-hint">탭하면 뜻 보기</div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="ko">${w.ko}</div>
+        <div class="ex"><b>${esc(w.ex)}</b><br>${w.exko}</div>
+        <div class="tap-hint">탭하면 앞면으로</div>
+      </div>
+    </div>
+  </div>
+  <div class="row-btns">
+    <button class="big b-speak" id="spk">🔊</button>
+    <button class="big b-again" id="prev">← 이전</button>
+    <button class="big b-good" id="next">다음 →</button>
+  </div>`;
+  // theme chips
+  const cr=document.getElementById("themeChips");
+  Object.keys(THEMES).forEach(k=>{
+    const c=document.createElement("div"); c.className="chip"+(k===state.theme?" on":"");
+    c.textContent=THEMES[k].label; c.onclick=()=>{state.theme=k;state.wi=0;state.flipped=false;viewWords();};
+    cr.appendChild(c);
+  });
+  document.getElementById("card").onclick=()=>{state.flipped=!state.flipped;document.getElementById("card").classList.toggle("flipped");};
+  document.getElementById("spk").onclick=(e)=>{e.stopPropagation();speak(w.jp);};
+  document.getElementById("prev").onclick=()=>{if(state.wi>0){state.wi--;state.flipped=false;viewWords();}};
+  document.getElementById("next").onclick=()=>{
+    markStudied(1);
+    if(state.wi<list.length-1){state.wi++;state.flipped=false;viewWords();}
+    else{state.wi=0;state.flipped=false;viewWords();}
+  };
+}
+
+/* ---- 문형 ---- */
+function viewGrammar(){
+  main.innerHTML=`<div class="shead"><button class="back" onclick="go('home')">←</button>
+    <div><h2>문형 연습</h2><small>기초 문장구조 8패턴</small></div></div>
+    <div id="glist"></div>`;
+  const box=document.getElementById("glist");
+  GRAMMAR.forEach(g=>{
+    const el=document.createElement("div"); el.className="tile wide"; el.style.marginBottom="12px"; el.style.display="block";
+    el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><h3 style="font-size:20px;margin:0 0 2px">${esc(g.pat)}</h3><small style="color:var(--accent2)">${g.ko}</small></div>
+      <button class="big b-speak" style="flex:0 0 46px;height:46px" data-s="${esc(g.ex)}">🔊</button></div>
+      <p style="color:var(--sub);font-size:13px;margin:10px 0">${g.note}</p>
+      <div class="ex" style="border-top:1px solid var(--line);padding-top:10px">
+        <div class="furi" style="text-align:left">${g.exf}</div>
+        <b>${esc(g.ex)}</b><br>${g.exko}</div>`;
+    box.appendChild(el);
+  });
+  box.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>speak(b.dataset.s));
+  markStudied(0);
+}
+
+/* ---- 회화 ---- */
+function viewTalk(){
+  main.innerHTML=`<div class="shead"><button class="back" onclick="go('home')">←</button>
+    <div><h2>상황 회화</h2><small>롤플레이로 통문장 익히기</small></div></div>
+    <div class="chip-row" id="tchips"></div><div id="chat"></div>`;
+  const cr=document.getElementById("tchips");
+  Object.keys(DIALOGUES).forEach(k=>{
+    const c=document.createElement("div"); c.className="chip"+(k===state.theme?" on":"");
+    c.textContent=THEMES[k].label; c.onclick=()=>{state.theme=k;viewTalk();};
+    cr.appendChild(c);
+  });
+  const d=DIALOGUES[state.theme]||DIALOGUES.friends;
+  const chat=document.getElementById("chat");
+  chat.innerHTML=`<div class="note" style="margin-bottom:14px">🎬 <b>${d.title}</b> — ${d.scene}</div>`;
+  const wrap=document.createElement("div"); wrap.className="chat";
+  d.lines.forEach(l=>{
+    const b=document.createElement("div"); b.className="bubble "+(l.who==="A"?"b-a":"b-b");
+    b.innerHTML=`<div class="who">${l.n}</div>
+      <div class="line-jp">${esc(l.jp)} <span class="spk">🔊</span></div>
+      <div class="line-furi">${l.f}</div>
+      <div class="line-ko">${l.ko}</div>`;
+    b.querySelector(".spk").onclick=()=>speak(l.jp);
+    wrap.appendChild(b);
+  });
+  chat.appendChild(wrap);
+  markStudied(0);
+}
+
+/* ---- 퀴즈 ---- */
+let quiz={q:0,score:0,items:[]};
+function buildQuiz(){
+  const all=[].concat(WORDS.friends,WORDS.daily,WORDS.kitchen);
+  const shuffled=all.map(a=>[Math.random(),a]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]).slice(0,10);
+  quiz={q:0,score:0,items:shuffled.map(w=>{
+    const opts=[w.ko]; const pool=all.filter(x=>x.ko!==w.ko);
+    while(opts.length<4){ const r=pool[Math.floor(Math.random()*pool.length)].ko; if(!opts.includes(r)) opts.push(r); }
+    return {w, opts:opts.map(o=>[Math.random(),o]).sort((a,b)=>a[0]-b[0]).map(o=>o[1])};
+  })};
+}
+function viewQuiz(){
+  if(quiz.q>=quiz.items.length){ return quizResult(); }
+  const it=quiz.items[quiz.q];
+  main.innerHTML=`<div class="shead"><button class="back" onclick="go('home')">←</button>
+    <div><h2>단어 퀴즈</h2><small>${quiz.q+1} / ${quiz.items.length} · 점수 ${quiz.score}</small></div></div>
+    <div class="q-prompt">${esc(it.w.jp)}</div>
+    <div class="q-sub">${it.w.furi} · 🔊 <span id="qs" style="cursor:pointer;text-decoration:underline">듣기</span></div>
+    <div id="opts"></div>`;
+  document.getElementById("qs").onclick=()=>speak(it.w.jp);
+  const box=document.getElementById("opts");
+  it.opts.forEach(o=>{
+    const b=document.createElement("button"); b.className="q-opt"; b.textContent=o;
+    b.onclick=()=>{
+      if(b.dataset.done) return;
+      box.querySelectorAll(".q-opt").forEach(x=>x.dataset.done=1);
+      if(o===it.w.ko){ b.classList.add("correct"); quiz.score++; markStudied(1); }
+      else{ b.classList.add("wrong"); box.querySelectorAll(".q-opt").forEach(x=>{if(x.textContent===it.w.ko)x.classList.add("correct");}); }
+      setTimeout(()=>{quiz.q++;viewQuiz();},900);
+    };
+    box.appendChild(b);
+  });
+}
+function quizResult(){
+  main.innerHTML=`<div class="shead"><button class="back" onclick="go('home')">←</button><div><h2>결과</h2></div></div>
+   <div class="result"><div class="big-num">${quiz.score}/${quiz.items.length}</div>
+   <p style="color:var(--sub);margin:14px 0 24px">${quiz.score>=8?"훌륭해요! 🎉 다음 단계로!":quiz.score>=5?"좋아요, 조금만 더! 💪":"복습하고 다시 도전해요 📚"}</p>
+   <div class="row-btns"><button class="big b-good" onclick="buildQuiz();viewQuiz()">다시 풀기</button>
+   <button class="big b-next" onclick="go('words')">단어 복습</button></div></div>`;
+}
+
+/* ---- かな ---- */
+let kanaMode="hira";
+function viewKana(){
+  main.innerHTML=`<div class="shead"><button class="back" onclick="go('home')">←</button>
+    <div><h2>かな 복습</h2><small>글자를 탭하면 발음이 나와요</small></div></div>
+    <div class="chip-row">
+      <div class="chip ${kanaMode==='hira'?'on':''}" id="mh">ひらがな</div>
+      <div class="chip ${kanaMode==='kata'?'on':''}" id="mk">カタカナ</div>
+    </div>
+    <div class="kana-grid" id="kg"></div>`;
+  document.getElementById("mh").onclick=()=>{kanaMode="hira";viewKana();};
+  document.getElementById("mk").onclick=()=>{kanaMode="kata";viewKana();};
+  const kg=document.getElementById("kg");
+  KANA[kanaMode].forEach(([k,r])=>{
+    const c=document.createElement("div"); c.className="kana-cell";
+    c.innerHTML=`<b>${k}</b><small>${r}</small>`;
+    c.onclick=()=>{speak(k); markStudied(0);};
+    kg.appendChild(c);
+  });
+}
+
+/* ============================== 라우팅 ============================== */
+function go(v){
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===v || (v==="quiz"&&b.dataset.view==="home")));
+  if(v==="home")viewHome();
+  else if(v==="words")viewWords();
+  else if(v==="grammar")viewGrammar();
+  else if(v==="talk")viewTalk();
+  else if(v==="kana")viewKana();
+  else if(v==="quiz"){buildQuiz();viewQuiz();}
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.view));
+
+// init
+if("speechSynthesis" in window){ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }
+renderStreak();
+go("home");
+</script>
+</body>
+</html>
